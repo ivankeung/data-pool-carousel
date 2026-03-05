@@ -361,7 +361,8 @@
       if (stepIndex >= pools.length * 2) {
         track.style.transition = 'none';
         stepIndex -= pools.length;
-        track.style.transform = `translateX(${getOffset(stepIndex)}px)`;
+        // Jump to one step BEFORE the target (visually identical due to duplicated slides)
+        track.style.transform = `translateX(${getOffset(stepIndex - 1)}px)`;
         // Force reflow so the jump is instant
         track.offsetHeight;
         track.style.transition = 'transform 0.6s ease';
