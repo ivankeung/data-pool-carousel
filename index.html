@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Pool Carousel</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #F3EDE8;
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .carousel-section {
+      position: relative;
+      width: 100%;
+      max-width: 1440px;
+      height: 620px;
+      display: flex;
+      align-items: flex-start;
+      overflow: hidden;
+    }
+
+    /* ── Continuous marquee ── */
+    .marquee-wrapper {
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      margin-top: 67px;
+    }
+
+    .marquee-track {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      will-change: transform;
+      transition: transform 0.6s ease;
+    }
+
+    /* ── Pool slide ── */
+    .pool-slide {
+      flex-shrink: 0;
+      width: 288px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 21px;
+      border-radius: 24px;
+      transition: opacity 0.3s;
+    }
+
+    .pool-slide__name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: #C4B8AE;
+      text-align: center;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .pool-slide__graphic {
+      width: 240px;
+      height: 260px;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pool-slide__graphic img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0.55;
+    }
+
+    /* ── Fade edges ── */
+    .carousel-section::before,
+    .carousel-section::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 180px;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .carousel-section::before {
+      left: 0;
+      background: linear-gradient(to right, #F3EDE8 0%, transparent 100%);
+    }
+    .carousel-section::after {
+      right: 0;
+      background: linear-gradient(to left, #F3EDE8 0%, transparent 100%);
+    }
+
+    /* ── Static center card ── */
+    .center-card {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      width: 382px;
+      background: #fff;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.10);
+    }
+
+    .center-card__header {
+      padding: 12px 24px;
+      text-align: center;
+      color: #B0A8A0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .center-card__body {
+      padding: 0 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .center-card__title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .center-card__title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a1a;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .center-card__check {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px; height: 30px;
+      background: #22C55E;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .center-card__check svg { width: 16px; height: 16px; fill: white; }
+
+    .center-card__image-wrapper {
+      width: 320px;
+      height: 260px;
+      border-radius: 16px;
+      background: #FAF2F2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .center-card__image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .center-card__footer {
+      padding: 16px 24px 24px;
+      border-top: 1px dashed #e0d8d0;
+    }
+
+    .center-card__reward {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      background: #FFF7ED;
+      border-radius: 24px;
+      margin-bottom: 14px;
+    }
+
+    .center-card__reward-icon {
+      width: 26px; height: 26px;
+      background: linear-gradient(135deg, #FF8C42, #FF5E62);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .center-card__reward-icon svg { width: 13px; height: 13px; fill: white; }
+
+    .center-card__reward-text {
+      font-size: 13px;
+      color: #D4956A;
+      font-weight: 500;
+    }
+
+    .center-card__cta {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #FF69B4, #FF8DC7);
+      border: none;
+      border-radius: 40px;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(255, 105, 180, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .center-card__cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(255, 105, 180, 0.45);
+    }
+
+    /* ── Explore link below card ── */
+    .explore-link {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 11;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .explore-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="carousel-section">
+    <div class="marquee-wrapper">
+      <div class="marquee-track" id="marqueeTrack"></div>
+    </div>
+
+    <!-- Static center card -->
+    <div class="center-card">
+      <div class="center-card__header">Vote on data</div>
+      <div class="center-card__body">
+        <div class="center-card__title-row">
+          <span class="center-card__title" id="centerTitle">KYC Data Pool</span>
+          <div class="center-card__check">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+          </div>
+        </div>
+        <div class="center-card__image-wrapper">
+          <img id="centerImg" src="" alt="">
+        </div>
+      </div>
+      <div class="center-card__footer">
+        <div class="center-card__reward">
+          <div class="center-card__reward-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>
+          </div>
+          <span class="center-card__reward-text">Earn rewards from data pool fees</span>
+        </div>
+        <button class="center-card__cta">Start Earning</button>
+      </div>
+    </div>
+
+    <a href="#" class="explore-link">
+      Explore 28 Data Pools
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <script>
+    // ── Pool definitions ──
+    const pools = [
+      { name: 'Education Data Pool', img: 'pool-assets/education@2x.png' },
+      { name: 'Finance Data Pool', img: 'pool-assets/finance@2x.png' },
+      { name: 'KYC Data Pool', img: 'pool-assets/kyc@2x.png' },
+      { name: 'Loyalty Data Pool', img: 'pool-assets/loyalty@2x.png' },
+      { name: 'Gaming Data Pool', img: 'pool-assets/gaming@2x.png' },
+    ];
+
+    // ── Build marquee slides ──
+    const track = document.getElementById('marqueeTrack');
+
+    function createSlide(pool) {
+      const slide = document.createElement('div');
+      slide.className = 'pool-slide';
+      slide.innerHTML = `
+        <div class="pool-slide__name">${pool.name}</div>
+        <div class="pool-slide__graphic">
+          <img src="${pool.img}" alt="${pool.name}">
+        </div>
+      `;
+      return slide;
+    }
+
+    // Duplicate the set 3x for seamless looping
+    for (let i = 0; i < 3; i++) {
+      pools.forEach(pool => track.appendChild(createSlide(pool)));
+    }
+
+    // ── Step-based marquee (scroll-halt-scroll) + synced center card ──
+    const centerTitle = document.getElementById('centerTitle');
+    const centerImg = document.getElementById('centerImg');
+
+    const CARD_W = 288;
+    const GAP = 16;
+    const SLOT = CARD_W + GAP; // 304px per card slot
+    const SET_W = SLOT * pools.length; // width of one full set of 5
+    const SLIDE_DURATION = 600;  // ms — transition time (ease)
+    const PAUSE_DURATION = 2400; // ms — halt between slides
+
+    let stepIndex = 0; // which step we're on (increments each slide)
+    let currentPoolIdx = -1;
+    let paused = false;
+    let timer = null;
+
+    // Position the track so slide N is centered behind the card
+    function getOffset(step) {
+      // We want the Nth slide's center to align with the viewport center.
+      // The viewport center relative to track start = section.offsetWidth / 2
+      // Slide i center in track space = i * SLOT + CARD_W / 2
+      // So offset = viewportCenter - slideCenter
+      const sectionW = document.querySelector('.carousel-section').offsetWidth;
+      const viewCenter = sectionW / 2;
+      const slideCenter = step * SLOT + CARD_W / 2;
+      return viewCenter - slideCenter;
+    }
+
+    function setCenterCard(idx) {
+      centerTitle.textContent = pools[idx].name;
+      centerImg.src = pools[idx].img;
+      centerImg.alt = pools[idx].name;
+    }
+
+    function advanceSlide() {
+      if (paused) { timer = setTimeout(advanceSlide, 100); return; }
+
+      stepIndex++;
+
+      // When we've scrolled past one full set, jump back instantly
+      if (stepIndex >= pools.length * 2) {
+        track.style.transition = 'none';
+        stepIndex -= pools.length;
+        track.style.transform = `translateX(${getOffset(stepIndex)}px)`;
+        // Force reflow so the jump is instant
+        track.offsetHeight;
+        track.style.transition = 'transform 0.6s ease';
+      }
+
+      // Animate to next position
+      track.style.transform = `translateX(${getOffset(stepIndex)}px)`;
+
+      // Update center card with slide-out-left / slide-in-from-right
+      const newPoolIdx = stepIndex % pools.length;
+      if (newPoolIdx !== currentPoolIdx) {
+        // Slide out to the left
+        centerTitle.style.opacity = '0';
+        centerTitle.style.transform = 'translateX(-24px)';
+        centerImg.style.opacity = '0';
+        centerImg.style.transform = 'translateX(-24px)';
+
+        setTimeout(() => {
+          // Jump to right starting position (no transition)
+          centerTitle.style.transition = 'none';
+          centerImg.style.transition = 'none';
+          centerTitle.style.transform = 'translateX(24px)';
+          centerImg.style.transform = 'translateX(24px)';
+
+          // Update content
+          currentPoolIdx = newPoolIdx;
+          setCenterCard(currentPoolIdx);
+
+          // Force reflow then animate in
+          centerTitle.offsetHeight;
+          centerTitle.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+          centerImg.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+          centerTitle.style.opacity = '1';
+          centerTitle.style.transform = 'translateX(0)';
+          centerImg.style.opacity = '1';
+          centerImg.style.transform = 'translateX(0)';
+        }, 300);
+      }
+
+      // Schedule next slide after transition + pause
+      timer = setTimeout(advanceSlide, SLIDE_DURATION + PAUSE_DURATION);
+    }
+
+    // Initialize: position first slide at center
+    function init() {
+      // Start with the first pool centered
+      stepIndex = pools.length; // start in the middle set for seamless looping
+      currentPoolIdx = 0;
+      track.style.transition = 'none';
+      track.style.transform = `translateX(${getOffset(stepIndex)}px)`;
+      setCenterCard(currentPoolIdx);
+      track.offsetHeight; // force reflow
+      track.style.transition = 'transform 0.6s ease';
+
+      // Start the cycle after initial pause
+      timer = setTimeout(advanceSlide, PAUSE_DURATION);
+    }
+
+    init();
+
+    // Hover to pause
+    track.addEventListener('mouseenter', () => { paused = true; });
+    track.addEventListener('mouseleave', () => { paused = false; });
+  </script>
+
+</body>
+</html>
